@@ -239,49 +239,6 @@ export default class {
     return this.isArrayPressed(bind.keys);
   }
 
-  prototypeHook = function (obj, selector, callBack) {
-    let after = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-    let args = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
-    if (!constructor) return;
-    const prototype = obj.constructor.prototype,
-      functionName = prototype[selector] && selector || this.find(prototype, selector)?.[0];
-    if (!functionName) return;
-    !prototype[`${functionName}_copy`] && (prototype[`${functionName}_copy`] = prototype[functionName]);
-    prototype[functionName] = function () {
-      try {
-        if (after) {
-          const result = prototype[`${functionName}_copy`].apply(this, arguments);
-          [].push.call(arguments, prototype[`${functionName}_copy`]);
-          [].push.call(arguments, result);
-          const callBackResult = args ? callBack.call(this, arguments) : callBack.apply(this, arguments);
-          if (callBackResult) return callBackResult;
-          return result;
-        }
-        [].push.call(arguments, prototype[`${functionName}_copy`]);
-        const callBackResult = args ? callBack.call(this, arguments) : callBack.apply(this, arguments);
-        if (callBackResult) return callBackResult;
-        return prototype[`${functionName}_copy`].apply(this, arguments);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  }
-
-  proxyHook = (object, selector, callBack) => {
-    const functionName = object[selector] && selector || find(object, selector)?.[0];
-
-    if (!functionName) return;
-
-    !object[`${functionName}_copy`] && (object[`${functionName}_copy`] = object[functionName]);
-    object[functionName] = new Proxy({}, {
-      get: (target, prop) => function () {
-        const callBackResult = callBack(prop, arguments);
-        if (callBackResult) return callBackResult;
-        return object[`${functionName}_copy`][prop].apply(null, arguments);
-      }
-    })
-  }
-
 
   get rootObject() {
     let objectKey,
